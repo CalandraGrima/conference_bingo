@@ -1,2 +1,4 @@
-# Local-only helper: starts a test server, not part of the published site.
+# Local-only files, not part of the published site.
+# test_local_site.sh starts a test server; INSTRUCTIONS.md is the long version of the instructions.
 test_local_site.sh
+INSTRUCTIONS.md
