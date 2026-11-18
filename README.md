@@ -14,7 +14,6 @@ It is plain HTML, CSS and JavaScript with no build step, so it runs on GitHub Pa
 | `config.js` | Title, subtitle, logo file name, length limit for terms, share link, GitHub link, acknowledgements and GoatCounter code. |
 | `index.html`, `style.css` | The page and its look (black and white with light green ticks, in light and dark). |
 | `fonts/` | The Barlow Condensed font files (regular, medium, semibold, bold, extra bold), served from the site itself, plus its licence (`OFL.txt`). |
-| `test_local_site.sh` | Starts a local test server (see "Try it on your computer"). |
 | `core.js` | Card generation, bingo detection and the emoji share text. |
 | `card-image.js` | Draws the card as a PNG for "Share as image". |
 | `app.js` | Saving, buttons, theme, counting and sharing. |
@@ -63,13 +62,13 @@ Things to know:
 
 ## Try it on your computer
 
-Browsers block a page from reading `terms.txt` when you open `index.html` directly from disk, so run the included script, which starts a tiny local server in this folder:
+Browsers block a page from reading `terms.txt` when you open `index.html` directly from disk, so start a tiny local server in this folder:
 
 ```
-./test_local_site.sh
+python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000> (add `?check` to check your terms) and press Ctrl+C in the terminal to stop it. To use another port, pass it as an argument: `./test_local_site.sh 8080`. The script runs `python3 -m http.server`, so it needs Python 3. GoatCounter ignores visits from localhost, so testing this way shouldn't affect your totals.
+Then open <http://localhost:8000> (add `?check` to check your terms) and press Ctrl+C in the terminal to stop it. This needs Python 3. GoatCounter ignores visits from localhost, so testing this way shouldn't affect your totals.
 
 ## Publish on GitHub Pages
 
