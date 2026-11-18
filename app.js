@@ -666,6 +666,7 @@
     if (isWebAddress(C.githubUrl)) {
       $('github-link').href = C.githubUrl;
       $('site-footer').hidden = false;
+      $('ack-octicons').hidden = false;   // credit for the GitHub logo, shown whenever the logo is
     }
   }
 

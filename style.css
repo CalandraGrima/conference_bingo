@@ -347,6 +347,8 @@ h3 { font-size: .95rem; margin: 0 0 6px; }
 .clear-row { text-align: center; margin: 4px 0 8px; }
 .site-footer { text-align: center; margin-top: 20px; font-size: .92rem; }
 .site-footer a { color: var(--text); }
+.github-link { display: inline-flex; align-items: center; gap: 8px; }
+.github-link .gh-icon { flex: none; }
 
 .data-note p { margin: 0 0 8px; color: var(--text); font-size: .92rem; }
 .data-note p:last-child { margin-bottom: 0; }
