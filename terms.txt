@@ -109,3 +109,5 @@ Chair has not prepared questions
 “I’m sorry if it’s a dumb question…”
 “I’m not an expert on this, but…”
 Institutional slides template used
+Lab photo is AI generated
+Speaker cannot spot question asker in crowd

@@ -33,7 +33,7 @@ window.BINGO_CONFIG = {
   shareUrl: "",
 
   // Link to this project's page on GitHub, shown at the bottom of the site. Leave "" to hide it.
-  githubUrl: "",
+  githubUrl: "https://github.com/CalandraGrima/conference_bingo",
 
   // Extra thank-yous for the Acknowledgements section (Barlow Condensed and GoatCounter are already there).
   // Each one is plain text, or { text: "...", url: "https://..." } to make it a link. For example:
