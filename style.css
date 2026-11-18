@@ -1,0 +1,399 @@
+/* Barlow Condensed, served from this site (fonts/), so visitors' browsers never contact a font service.
+   One file per weight and alphabet (latin, and latin-ext for accented letters). */
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-ext-500-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-ext-600-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-ext-800-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("fonts/barlow-condensed-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+:root {
+  --font: "Barlow Condensed", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Clean black and white, with light green for ticked squares. */
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --text: #111111;
+  --muted: #5c5c5c;
+  --border: #d4d4d4;
+  --square-border: #111111;
+  --accent: #111111;
+  --accent-text: #ffffff;
+  --marked-bg: #c9f0d9;       /* ticked squares: light green */
+  --marked-fg: #111111;
+  --tick: #14532d;
+  --focus: #111111;
+  --hover: #ededed;           /* unmarked square under the pointer */
+  --marked-hover: #b4e8c8;    /* ticked square under the pointer */
+  --accent-hover: #3a3a3a;    /* filled button under the pointer */
+}
+
+/* Dark theme: the same black and white, inverted. The values appear twice: once for people whose
+   device is set to dark (unless they picked Light), and once for people who picked Dark.
+   Keep the two lists the same. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0a0a0a;
+    --surface: #161616;
+    --text: #f2f2f2;
+    --muted: #a8a8a8;
+    --border: #3a3a3a;
+    --square-border: #f2f2f2;
+    --accent: #f2f2f2;
+    --accent-text: #0a0a0a;
+    --marked-bg: #a9e3c0;
+    --marked-fg: #0a0a0a;
+    --tick: #14532d;
+    --focus: #f2f2f2;
+    --hover: #262626;
+    --marked-hover: #93d9b0;
+    --accent-hover: #d6d6d6;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0a0a;
+  --surface: #161616;
+  --text: #f2f2f2;
+  --muted: #a8a8a8;
+  --border: #3a3a3a;
+  --square-border: #f2f2f2;
+  --accent: #f2f2f2;
+  --accent-text: #0a0a0a;
+  --marked-bg: #a9e3c0;
+  --marked-fg: #0a0a0a;
+  --tick: #14532d;
+  --focus: #f2f2f2;
+  --hover: #262626;
+  --marked-hover: #93d9b0;
+  --accent-hover: #d6d6d6;
+}
+:root[data-theme="light"] { color-scheme: light; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.5 var(--font);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+main {
+  width: min(100%, 600px);
+  margin: 0 auto;
+  padding: 16px 8px 48px;
+}
+
+header { text-align: center; margin-bottom: 12px; }
+.header-top { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+/* The wide Conference Bingo wordmark above the title. Its tiles are white, so it also reads in dark mode. */
+.site-logo { display: block; width: min(100%, 420px); height: auto; margin: 0 auto 14px; }
+.site-logo[hidden] { display: none; }
+h1, h2, h3 { font-weight: 500; }
+h1 { margin: 0; font-size: clamp(1.5rem, 6vw, 2rem); line-height: 1.2; }
+h2 { font-size: 1.1rem; margin: 0 0 8px; }
+h3 { font-size: .95rem; margin: 0 0 6px; }
+.subtitle { margin: 6px 0 0; color: var(--muted); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.notice {
+  background: var(--surface);
+  border: 2px solid var(--text);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 0 0 12px;
+}
+
+.notice h2 { margin: 0 0 6px; }
+.notice p { margin: 0 0 6px; }
+.notice ul { margin: 0 0 8px; padding-left: 20px; }
+.notice li { margin: 2px 0; }
+.check-note { color: var(--muted); font-size: .85rem; }
+
+.banner {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 10px 16px;
+  margin: 0 0 12px;
+  border-radius: 12px;
+  background: #ff9f1c;   /* orange, with dark text, in both themes */
+  color: #111111;
+}
+.banner.full { background: #4ade80; color: #111111; }   /* a completed card: green, in both themes */
+.banner.pop { animation: pop .5s ease-out; }
+@keyframes pop {
+  0% { transform: scale(.9); }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.card {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.cell {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 6px 8px;   /* leaves room for the inner line on completed lines */
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font: inherit;
+  font-size: clamp(.65rem, 2.8vw, .95rem);   /* app.js shrinks this further for long terms */
+  font-weight: 400;                           /* same weight marked or not, so the fit never changes */
+  line-height: 1.15;
+  color: inherit;
+  background: var(--surface);
+  border: 2px solid var(--square-border);
+  border-radius: 0;                           /* square corners */
+  overflow: hidden;
+  overflow-wrap: break-word;
+  hyphens: manual;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Taller squares on phones give long terms more room. */
+@media (max-width: 600px) {
+  .cell { aspect-ratio: 5 / 6; }
+}
+
+.cell[aria-pressed="true"],
+.cell.done {
+  background: var(--marked-bg);
+  color: var(--marked-fg);
+}
+/* The word BINGO marks the squares in a completed row, column or diagonal (no colour needed); every border stays thin. */
+.cell.in-line:not(.free) {
+  padding-top: 17px;   /* room for the BINGO label, so it never overlaps the words */
+}
+.cell.in-line:not(.free)::before {
+  content: "BINGO";
+  position: absolute;
+  top: 4px;
+  right: 25px;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  color: var(--tick);
+}
+/* A tick as well as a colour, so marking never relies on colour alone. */
+.cell[aria-pressed="true"]::after,
+.cell.done::after {
+  content: "\2713";
+  position: absolute;
+  top: 1px;
+  right: 5px;
+  font-size: .95em;
+  font-weight: 800;
+  color: var(--tick);
+}
+
+
+
+.cell.free {
+  cursor: default;
+  padding: 5px;
+  background: #ffffff;   /* always light, so a dark-outlined logo reads in dark mode too */
+  border-color: var(--square-border);
+}
+.cell.free img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+.progress { text-align: center; color: var(--muted); margin: 12px 0; font-size: .95rem; }
+
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 28px; }
+
+.theme-btn,
+.btn {   /* every button has the same look as the theme button */
+  min-height: 36px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.btn:disabled { opacity: .5; cursor: default; }
+/* The share buttons and the New card button are bigger than the rest. */
+#share, #share-image, #reroll, #view-share {
+  min-height: 48px;
+  padding: 8px 24px;
+  font-size: 1.1rem;
+}
+
+/* Buttons and squares react when the pointer is over them, and when pressed. */
+.btn, .theme-btn, .cell, .toast-action {
+  transition: background-color .15s, color .15s, border-color .15s, transform .1s;
+}
+.btn:not(:disabled):active, button.cell:active { transform: scale(.97); }
+@media (hover: hover) {
+  .theme-btn:hover, .btn:not(:disabled):hover { border-color: var(--text); background: var(--hover); }
+  button.cell:hover { background: var(--hover); }
+  button.cell[aria-pressed="true"]:hover { background: var(--marked-hover); }
+  .toast-action:hover { text-decoration-thickness: 3px; }
+  .ack-list a:hover, .data-note a:hover, .site-footer a:hover { color: var(--text); }
+}
+
+.stats, .data-note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.stats-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.muted { color: var(--text); font-size: .92rem; margin: 0 0 8px; }
+.completed-list { list-style: none; margin: 0; padding: 0; }
+.completed-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--border); }
+.completed-list li:first-child { border-top: 0; }
+#view { width: min(94vw, 560px); }
+#view .card { margin-top: 8px; }
+
+.stat-box dl { margin: 0; }
+.stat-box dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+.stat-box dt { color: var(--text); }
+.stat-box dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.ack-list { margin: 0; padding-left: 20px; color: var(--text); font-size: .92rem; }
+.ack-list li { margin: 2px 0; }
+.ack-list a { color: inherit; }
+.clear-row { text-align: center; margin: 4px 0 8px; }
+.site-footer { text-align: center; margin-top: 20px; font-size: .92rem; }
+.site-footer a { color: var(--text); }
+
+.data-note p { margin: 0 0 8px; color: var(--text); font-size: .92rem; }
+.data-note p:last-child { margin-bottom: 0; }
+.data-note a { color: inherit; }
+
+dialog {
+  width: min(92vw, 380px);
+  padding: 20px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+dialog::backdrop { background: rgba(0, 0, 0, .55); }
+dialog h2 { margin-top: 0; }
+#confirm-done { background: #4ade80; color: #111111; padding: 10px 14px; border-radius: 12px; font-weight: 500; }   /* finished card: green message box */
+#confirm-done[hidden] { display: none; }
+.dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(92vw, 460px);
+  padding: 10px 16px;
+  color: var(--bg);
+  background: var(--text);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+}
+.toast-action {
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner.pop { animation: none; }
+  .btn, .theme-btn, .cell, .toast-action { transition: none; }
+  .btn:active, button.cell:active { transform: none !important; }
+}

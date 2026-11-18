@@ -1,0 +1,111 @@
+# Conference bingo terms: one per line.
+# Blank lines and lines starting with # are ignored. Duplicates are removed.
+# You need at least 24 different terms; 40 or more makes cards more varied.
+# Shorter terms fit the squares better: aim for 50 characters or fewer (the limit is maxTermLength in config.js).
+# Longer terms still work but are shrunk to fit. Add ?check to the site address to see which ones.
+
+Session goes over time
+Session finishes early
+Talk goes over time and is not stopped
+Talk goes over time and is stopped
+Questions skipped ‘in the interest of time’
+Skipping over a slide in interest of time
+Squeaky chicken scares presenter
+Mid-session break/coffee run
+You catch someone napping
+Figures are so small you question if you need glasses
+Someone reads a script from their phone during a flash talk
+Talk has same energy as Eminem’s ‘Rap God’
+Protein name with more than 4 letters and 2 numbers
+Cursed acronym
+Environmental bioinformatics is the coolest talk ever
+Lab member or friend smashes talk
+Plot is shown but never explained
+An acknowledgement group picture without the speaker
+A talk without clear motivation just jumping right into jargon
+You know gossip about the speaker onstage
+QR code doesn’t work
+Bioconductor package
+Something or someone from your lab gets mentioned
+Not so humble bragging
+“I asked ChatGPT/Claude/etc…”
+Cursed AI art
+AI made the slides
+A language model is forced into a project where it probably shouldn’t be
+AI made the presentation
+AI tool could probably have been a linear regression
+A talk mentions that their tool "integrates seamlessly" or "can be fit painlessly" into existing workflows
+Someone in the lab catches something and gets a cough/sniffle during day 2
+Talk/poster title is 3+ lines long
+Poster is just a manuscript in A0
+A1 poster
+Crumpled poster
+A poster with more than 5 affiliations
+Terrible meme
+Fantastic meme
+A group of 5+ people immediately leave to the “bathroom” when a talk starts
+Same person asks 3+ questions in same day
+Double parked at drinks reception
+It is impossible to get down the aisles during the poster session
+Lightning talk uses convoluted metaphor
+Bulk RNA to single-cell/spatial comparison uses strange metaphor
+Someone on table is doing work on their laptop
+~~~ TECHNICAL DIFFICULTIES ~~~
+Talking to someone but stealthily reading their name badge
+Someone sneaked snacks into the post lunch/afternoon tea session
+You consumed twice as much coffee as usual
+You consumed twice as many snacks as usual
+Slide just has a quote
+Slide has photos of their kids/pets
+Too many PowerPoint slide transitions
+Talk references someone you know
+Industry booth has plushie
+Question is more of a statement
+Main room is FREEZING
+You surrender your email to spam forever for a silly freebie
+Super fancy slide theme
+No slide theme
+Plot with too many colours
+Viridis colour scheme
+Someone SPRINTS for the mic during questions
+Dim lighting makes you sleepy
+Slide changer button confuses presenter
+Slide is all plots
+Slide is all text
+Needing to choose between snacks or presenting your poster
+Interesting poster is unmanned
+Serif font in plots
+Plot with extremely tiny writing
+PeterMac purple poster palette
+Poster with tiny writing
+The venue's chairs give you excruciating back pain
+Speaker did not need a microphone
+Speaker needs a megaphone (or we all need hearing aids)
+Dietary food options are not as good
+Starvation symptoms from waiting in queue for lunch
+Made a new friend
+3D plot
+Sequencing cost / Moore's law graph
+Human genome project mentioned
+Survival plot without CI's shown
+Someone with 2 posters
+Pie chart with more than 4 categories
+Venn diagram with ≥4 categories
+Upset plot is unreadable
+Lego used as metaphor
+Comic Sans
+Non-standard slide size
+No table/desks in one room
+"My first time in Australia" by International Guest Speaker
+Mansplaining
+Serial Question Asking
+InferCNV
+"What I hope you can appreciate"
+"I'm sure you're all aware" but I'm not aware
+New omics you've never heard before
+“multiomics” includes proteomics
+Talk title does not match the program
+Chair has not prepared questions
+“I’m sorry if it’s a dumb question…”
+“I’m not an expert on this, but…”
+Institutional slides template used

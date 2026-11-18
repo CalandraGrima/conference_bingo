@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="ABACBS 2026 bingo: a random card every time, saved on your device, with a shareable emoji result.">
+  <title>ABACBS 2026 Bingo</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="preload" href="fonts/barlow-condensed-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Apply a saved light/dark choice before the page is drawn, so it never flashes the wrong theme.
+    try { var t = localStorage.getItem('conference-bingo:theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="header-top">
+        <button id="theme" class="theme-btn" type="button">Theme: Auto</button>
+      </div>
+      <img id="site-logo" class="site-logo" alt="" hidden>
+      <h1 id="title">ABACBS 2026 Bingo</h1>
+      <p id="subtitle" class="subtitle"></p>
+    </header>
+
+    <noscript><p class="notice">This bingo card needs JavaScript to run.</p></noscript>
+    <p id="notice" class="notice" role="alert" hidden></p>
+
+    <section id="check" class="notice" aria-labelledby="check-heading" hidden>
+      <h2 id="check-heading">Term check</h2>
+      <p id="check-summary"></p>
+      <ul id="check-list"></ul>
+      <p class="check-note">You only see this because the address ends in <code>?check</code>.</p>
+    </section>
+
+    <div id="banner" class="banner" role="status" hidden></div>
+    <div id="card" class="card" role="group" aria-label="Bingo card"></div>
+    <p id="progress" class="progress"></p>
+
+    <div class="actions">
+      <button id="share" class="btn" type="button">Share as emoji</button>
+      <button id="share-image" class="btn" type="button">Share as image</button>
+      <button id="reroll" class="btn" type="button">New card</button>
+    </div>
+
+    <section class="stats" aria-labelledby="stats-heading">
+      <h2 id="stats-heading">Totals</h2>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <h3>On this device</h3>
+          <dl>
+            <div><dt>Cards played</dt><dd id="my-started">0</dd></div>
+            <div><dt>Bingos</dt><dd id="my-bingo">0</dd></div>
+            <div><dt>Full cards</dt><dd id="my-full">0</dd></div>
+          </dl>
+        </div>
+        <div class="stat-box" id="global-box" hidden>
+          <h3>Everyone so far</h3>
+          <dl>
+            <div><dt>Players</dt><dd id="g-player">–</dd></div>
+            <div><dt>Cards played</dt><dd id="g-started">–</dd></div>
+            <div><dt>Bingos</dt><dd id="g-bingo">–</dd></div>
+            <div><dt>Full cards</dt><dd id="g-full">–</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="completed-box" class="stats" aria-labelledby="completed-heading" hidden>
+      <h2 id="completed-heading">Completed cards</h2>
+      <p class="muted">Every card you finish is kept here, on this device only.</p>
+      <ul id="completed-list" class="completed-list"></ul>
+    </section>
+
+    <section class="data-note" aria-labelledby="data-heading">
+      <h2 id="data-heading">Your data</h2>
+      <p>Your card, your progress, your totals, your completed cards and your light/dark choice are stored on this device only, in your browser. Nothing you tap is sent anywhere, and there is no account and no login.</p>
+      <p id="counting-note">We use <a href="https://www.goatcounter.com/" rel="noopener">GoatCounter</a> to count visits and four anonymous milestones (a new player, a card started, a bingo, a full card), so we can show the combined totals above. It sets no cookies and does not store anything that identifies you. If your browser sends “Do Not Track” or Global Privacy Control, it is not loaded at all and the combined totals are not fetched.</p>
+    </section>
+
+    <section class="data-note" aria-labelledby="ack-heading">
+      <h2 id="ack-heading">Acknowledgements</h2>
+      <ul id="ack-list" class="ack-list">
+        <li>Typeface: <a href="https://github.com/jpt/barlow" rel="noopener">Barlow Condensed</a> by the Barlow Project Authors, used under the <a href="fonts/OFL.txt">SIL Open Font License</a>.</li>
+        <li id="ack-goatcounter">Anonymous visit and milestone counts: <a href="https://www.goatcounter.com/" rel="noopener">GoatCounter</a>.</li>
+      </ul>
+    </section>
+
+    <div class="clear-row">
+      <button id="clear-data" class="btn" type="button">Clear all my cards</button>
+    </div>
+
+    <footer id="site-footer" class="site-footer" hidden>
+      <a id="github-link" href="#" rel="noopener">Conference Bingo on GitHub</a>
+    </footer>
+  </main>
+
+  <dialog id="confirm" aria-labelledby="confirm-heading">
+    <form method="dialog">
+      <h2 id="confirm-heading">Start a new card?</h2>
+      <p id="confirm-lost">Your current card has <strong id="confirm-count"></strong> and they will be lost. Your totals are kept.</p>
+      <p id="confirm-done" hidden>Well done, you completed this card! Starting a new one keeps your score: this card is already counted in your totals, and it stays saved under Completed cards on this device.</p>
+      <div class="dialog-actions">
+        <button class="btn" value="keep" autofocus>Keep my card</button>
+        <button class="btn" value="new">New card</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="clear-confirm" aria-labelledby="clear-heading">
+    <form method="dialog">
+      <h2 id="clear-heading">Clear all your cards?</h2>
+      <p>This deletes your current card, your totals and your completed cards from this device, and gives you a fresh card. It can't be undone. Anonymous counts already added to the combined totals stay there.</p>
+      <div class="dialog-actions">
+        <button class="btn" value="cancel" autofocus>Keep everything</button>
+        <button class="btn" value="clear">Clear everything</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="clear-sure" aria-labelledby="clear-sure-heading">
+    <form method="dialog">
+      <h2 id="clear-sure-heading">Are you sure?</h2>
+      <p>Your current card, your totals and all your completed cards will be deleted for good.</p>
+      <div class="dialog-actions">
+        <button class="btn" value="cancel" autofocus>No, keep my cards</button>
+        <button class="btn" value="clear">Yes, delete everything</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="view" aria-labelledby="view-heading">
+    <h2 id="view-heading">Completed card</h2>
+    <p id="view-date" class="muted"></p>
+    <div id="view-grid" class="card"></div>
+    <div class="dialog-actions">
+      <button id="view-share" class="btn" type="button">Share as image</button>
+      <button id="view-close" class="btn" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden>
+    <span id="toast-msg"></span>
+    <button id="toast-action" class="toast-action" type="button" hidden></button>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="core.js"></script>
+  <script src="card-image.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
