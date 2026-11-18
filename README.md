@@ -1,6 +1,6 @@
 # Conference Bingo
 
-_This website was created because conference bingo is fun and I wanted to try vibe-coding something that is low-stakes :)_
+_This website was created because having a silly conference bingo is fun and I wanted to try vibe-coding something that is low-stakes :)_
 
 A static bingo site for a conference. Everyone gets a random 5x5 card built from a list of terms, taps squares as they spot them, and can share the result as a Wordle-style emoji grid or as an image of the whole card. Progress is saved in the browser on each person's own device: no accounts, no logins, no cookies. It is plain HTML, CSS and JavaScript with no build step, so it runs on GitHub Pages as it is.
 
