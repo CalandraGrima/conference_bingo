@@ -35,6 +35,12 @@
       <p class="check-note">You only see this because the address ends in <code>?check</code>.</p>
     </section>
 
+    <details id="seed-details" class="seed-row">
+      <summary>Seed (optional)</summary>
+      <input id="seed" type="text" maxlength="60" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Seed" placeholder="Leave empty for a random card">
+      <p class="hint">The same seed with the same list always gives the same card, so a group can type the same word to get matching cards. It is used by “New card” and by printing.</p>
+    </details>
+
     <div id="banner" class="banner" role="status" hidden></div>
     <div id="card" class="card" role="group" aria-label="Bingo card"></div>
     <p id="progress" class="progress"></p>
@@ -46,19 +52,42 @@
       <button id="reroll" class="btn" type="button">New card</button>
     </div>
 
+    <section class="stats" aria-labelledby="stats-heading">
+      <h2 id="stats-heading">Totals</h2>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <h3>On this device</h3>
+          <dl>
+            <div><dt>Cards played</dt><dd id="my-started">0</dd></div>
+            <div><dt>Bingos</dt><dd id="my-bingo">0</dd></div>
+            <div><dt>Full cards</dt><dd id="my-full">0</dd></div>
+            <div><dt>Most squares on a card</dt><dd id="my-most">–</dd></div>
+          </dl>
+        </div>
+        <div class="stat-box" id="global-box" hidden>
+          <h3>Everyone so far</h3>
+          <dl>
+            <div><dt>Players</dt><dd id="g-player">–</dd></div>
+            <div><dt>Cards played</dt><dd id="g-started">–</dd></div>
+            <div><dt>Bingos</dt><dd id="g-bingo">–</dd></div>
+            <div><dt>Full cards</dt><dd id="g-full">–</dd></div>
+            <div><dt>Most squares on a card</dt><dd id="g-most">–</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="completed-box" class="stats" aria-labelledby="completed-heading" hidden>
+      <h2 id="completed-heading">Completed cards</h2>
+      <p class="muted">Every card you finish is kept here, on this device only.</p>
+      <ul id="completed-list" class="completed-list"></ul>
+    </section>
+
     <section id="lists-box" class="stats" aria-labelledby="lists-heading">
       <h2 id="lists-heading">Choose your list</h2>
-      <fieldset class="mode-row">
-        <legend class="sr-only">Where the squares come from</legend>
-        <label><input type="radio" name="mode" value="premade" checked> Premade list</label>
-        <label><input type="radio" name="mode" value="custom"> My own list</label>
-      </fieldset>
-
-      <div id="premade-pane">
-        <div id="list-select-row" class="field">
-          <label for="list-select">Conference</label>
-          <select id="list-select"></select>
-        </div>
+      <div class="field">
+        <label for="list-select">Bingo list</label>
+        <select id="list-select"></select>
         <p id="list-info" class="hint"></p>
       </div>
 
@@ -70,20 +99,14 @@
         <p class="hint">Blank lines, repeats and lines starting with # are ignored. Shorter squares fit better. The centre square says FREE.</p>
       </div>
 
-      <div class="field">
-        <label for="seed">Seed (optional)</label>
-        <input id="seed" type="text" maxlength="60" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Leave empty for a random card">
-        <p class="hint">The same seed with the same list always gives the same card, so a group can all type the same word to get matching cards. Used by the button below and by printing.</p>
-      </div>
-
       <div class="actions">
-        <button id="make-card" class="btn" type="button">Make a card from this list</button>
+        <button id="make-card" class="btn" type="button">New card from this list</button>
       </div>
     </section>
 
     <section id="print-box" class="stats" aria-labelledby="print-heading">
       <h2 id="print-heading">Print bingo cards</h2>
-      <p class="hint">Makes a stack of different random cards from the list above, and uses the seed if you typed one. Each card shows its seed and number at the bottom, so you can make the same stack again.</p>
+      <p class="hint">Makes a stack of different random cards from the list you chose, and uses the seed at the top if you typed one. If you leave the seed empty, a random one is used and shown when the print window opens, so you can type it in later to make the same stack again.</p>
       <div class="field-row">
         <div class="field">
           <label for="print-count">How many cards</label>
@@ -95,6 +118,7 @@
             <option value="1">1 (large)</option>
             <option value="2" selected>2</option>
             <option value="4">4 (small)</option>
+            <option value="6">6 (smallest)</option>
           </select>
         </div>
       </div>
@@ -104,34 +128,6 @@
       <p class="hint">Your browser’s print window opens. Pick “Save as PDF” as the printer for a PDF file, or choose a printer. Use A4 or Letter in portrait, with the default margins.</p>
     </section>
 
-    <section class="stats" aria-labelledby="stats-heading">
-      <h2 id="stats-heading">Totals</h2>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <h3>On this device</h3>
-          <dl>
-            <div><dt>Cards played</dt><dd id="my-started">0</dd></div>
-            <div><dt>Bingos</dt><dd id="my-bingo">0</dd></div>
-            <div><dt>Full cards</dt><dd id="my-full">0</dd></div>
-          </dl>
-        </div>
-        <div class="stat-box" id="global-box" hidden>
-          <h3>Everyone so far</h3>
-          <dl>
-            <div><dt>Players</dt><dd id="g-player">–</dd></div>
-            <div><dt>Cards played</dt><dd id="g-started">–</dd></div>
-            <div><dt>Bingos</dt><dd id="g-bingo">–</dd></div>
-            <div><dt>Full cards</dt><dd id="g-full">–</dd></div>
-          </dl>
-        </div>
-      </div>
-    </section>
-
-    <section id="completed-box" class="stats" aria-labelledby="completed-heading" hidden>
-      <h2 id="completed-heading">Completed cards</h2>
-      <p class="muted">Every card you finish is kept here, on this device only.</p>
-      <ul id="completed-list" class="completed-list"></ul>
-    </section>
 
     <section class="data-note" aria-labelledby="data-heading">
       <h2 id="data-heading">Your data</h2>

@@ -446,7 +446,7 @@ dialog h2 { margin-top: 0; }
 
 /* ---------- choose your list, seed, print ---------- */
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.card-source { margin-top: -4px; font-size: .85rem; }
+.card-source { margin-top: -4px; font-size: .8rem; opacity: .65; }   /* light grey: the list and seed, there if you want them */
 .hint { color: var(--muted); font-size: .85rem; margin: 6px 0 0; }
 .mode-row { display: flex; flex-wrap: wrap; gap: 8px 20px; border: 0; padding: 0; margin: 0 0 12px; }
 .mode-row label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
@@ -477,16 +477,17 @@ dialog h2 { margin-top: 0; }
 .print-page:last-child { break-after: auto; page-break-after: auto; }
 .print-page.pp-2 { display: flex; flex-direction: column; align-items: center; gap: 5mm; }
 .print-page.pp-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm 6mm; justify-items: center; align-items: start; }
+.print-page.pp-6 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm 6mm; justify-items: center; align-items: start; }
 .print-card { color: #000; font-family: var(--font); text-align: center; break-inside: avoid; page-break-inside: avoid; }
-.pp-1 .print-card { width: 180mm; --p-cell: 35.9mm; --p-font: 22px; }
-.pp-2 .print-card { width: 98mm; --p-cell: 19.5mm; --p-font: 14px; }
-.pp-4 .print-card { width: 90mm; --p-cell: 17.9mm; --p-font: 12.5px; }
-.p-wordmark { display: block; height: 9mm; width: auto; margin: 0 auto 1.5mm; }
-.pp-1 .p-wordmark { height: 14mm; margin-bottom: 3mm; }
+.pp-1 .print-card { width: 682px; --p-cell: 136px; --p-font: 22px; }
+.pp-2 .print-card { width: 372px; --p-cell: 74px; --p-font: 14px; }
+.pp-4 .print-card { width: 342px; --p-cell: 68px; --p-font: 12.5px; }
+.pp-6 .print-card { width: 282px; --p-cell: 56px; --p-font: 11px; }
 .p-title { margin: 0 0 2mm; font-size: 17px; font-weight: 600; line-height: 1.15; color: #000; }
 .pp-1 .p-title { font-size: 34px; margin-bottom: 4mm; }
 .pp-4 .p-title { font-size: 15px; }
-.p-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: var(--p-cell); border-top: .35mm solid #000; border-left: .35mm solid #000; }
+.pp-6 .p-title { font-size: 13px; margin-bottom: 1.5mm; }
+.p-grid { display: grid; grid-template-columns: repeat(5, var(--p-cell)); grid-auto-rows: var(--p-cell); border-top: 2px solid #000; border-left: 2px solid #000; }
 .p-cell {
   min-width: 0;   /* the row height is fixed by --p-cell, so a long term can't stretch its square (it shrinks instead) */
   padding: 1.2mm;
@@ -498,8 +499,8 @@ dialog h2 { margin-top: 0; }
   line-height: 1.12;
   color: #000;
   background: #fff;
-  border-right: .35mm solid #000;
-  border-bottom: .35mm solid #000;
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
   overflow: hidden;
   overflow-wrap: break-word;
   hyphens: manual;
@@ -507,13 +508,19 @@ dialog h2 { margin-top: 0; }
 .p-cell.free { padding: 1.5mm; }
 .p-cell.free img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .p-cell .free-text { font-weight: 800; font-size: 1.6em; letter-spacing: .06em; }
-.p-foot { margin: 1.5mm 0 0; font-size: 11px; line-height: 1.2; color: #333; }
-.pp-1 .p-foot { font-size: 15px; margin-top: 3mm; }
-
+.pp-1 
 @page { margin: 8mm; }
 @media print {
   body.printing { background: #fff; color: #000; padding: 0; }
   body.printing > :not(#print-area) { display: none !important; }
   body.printing #print-area { position: static; width: auto; pointer-events: auto; }
-  .p-cell, .p-grid, .p-title, .p-foot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
+  .p-cell, .p-grid, .p-title, }
+
+/* The seed box is tucked into a drop-down at the top, above the card. */
+.seed-row { margin: 0 0 14px; text-align: center; }
+.seed-row summary { display: inline-block; cursor: pointer; font-size: .9rem; color: var(--muted); padding: 4px 8px; }
+.seed-row summary:hover { color: var(--text); }
+.seed-row[open] summary { margin-bottom: 6px; }
+.seed-row input { display: block; width: min(100%, 320px); margin: 0 auto; padding: 8px 10px; font: inherit; text-align: center; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.seed-row input:focus-visible { outline-offset: 0; border-color: var(--text); }
+.seed-row .hint { margin-top: 6px; }

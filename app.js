@@ -11,6 +11,9 @@
   // GoatCounter event names. A card is counted once, each line is counted once per card,
   // and "new-player" is sent once per device.
   const EVENTS = { player: 'new-player', started: 'card-started', bingo: 'bingo', full: 'full-card' };
+  // "squares-2" ... "squares-25": sent once per card as it first reaches that many marked squares (the free space is 1),
+  // so the highest one anybody has reached can be found by looking for the highest event with a count.
+  const squaresEvent = (n) => 'squares-' + n;
   // The conference this build is for (see "edition" in config.js). Saved cards and totals are tagged with it,
   // and when it changes, everyone's saved data from the previous conference is discarded on their next visit.
   const EDITION = String(C.edition || '').trim();
@@ -23,7 +26,7 @@
   let manifest = null;       // lists/lists.json: { default, lists: [...] }
   const termCache = {};      // premade list id -> parsed terms
   let prefs = { mode: 'premade', listId: '', customText: '', seed: '' };
-  let globalTotals = null;   // { player, started, bingo, full } from GoatCounter, when available
+  let globalTotals = null;   // { player, started, bingo, full, most } from GoatCounter, when available
   let cells = [];
   let storageOk = true;
   let toastTimer = null;
@@ -56,13 +59,17 @@
     s.totals = {
       cardsStarted: Number(t.cardsStarted) || 0,
       bingos: Number(t.bingos) || Number(t.bingoCards) || 0,
-      fullCards: Number(t.fullCards) || 0
+      fullCards: Number(t.fullCards) || 0,
+      mostSquares: Number(t.mostSquares) || 0
     };
     s.player = !!s.player;
     const r = Object.assign({ started: false, full: false }, s.card.reported);
     // Older saved cards remembered only "had a bingo": treat lines already complete as counted.
     if (!Array.isArray(r.lines)) r.lines = r.bingo ? Core.completedLineIds(s.card.marked) : [];
     delete r.bingo;
+    // Older saved cards didn't track their most squares: count what is ticked now, without sending anything.
+    if (typeof r.max !== 'number') r.max = Core.markedCount(s.card.marked);
+    s.totals.mostSquares = Math.max(s.totals.mostSquares, r.max);
     s.card.reported = r;
     // Finished cards kept on this device (a snapshot of each card at the moment it was completed).
     s.completed = (Array.isArray(s.completed) ? s.completed : []).filter((c) =>
@@ -145,12 +152,25 @@
   async function fetchGlobal() {
     if (!trackingOn()) return null;
     const keys = Object.keys(EVENTS);
-    const values = await Promise.all(keys.map((k) => fetchOne(EVENTS[k], 5000)));
+    const [most, ...values] = await Promise.all([fetchMostSquares()].concat(keys.map((k) => fetchOne(EVENTS[k], 5000))));
     const out = {};
     let any = false;
     keys.forEach((k, i) => { if (values[i] != null) { out[k] = values[i]; any = true; } });
+    if (most != null) { out.most = most; any = true; }
     globalTotals = any ? out : null;
     return globalTotals;
+  }
+
+  // The most squares anyone has had on one card. Each card sends "squares-N" for every level it reaches, so the
+  // counts only fall as N rises, and the highest N that has any count can be found in about five lookups.
+  async function fetchMostSquares() {
+    let lo = 1, hi = Core.CELLS;   // everyone has at least the free space
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      const count = await fetchOne(squaresEvent(mid), 5000);
+      if (count) lo = mid; else hi = mid - 1;
+    }
+    return lo > 1 ? lo : null;
   }
 
   // ---------- lists and terms ----------
@@ -484,10 +504,11 @@
   }
 
   function updateStats() {
-    const t = state ? state.totals : { cardsStarted: 0, bingos: 0, fullCards: 0 };
+    const t = state ? state.totals : { cardsStarted: 0, bingos: 0, fullCards: 0, mostSquares: 0 };
     $('my-started').textContent = fmt(t.cardsStarted);
     $('my-bingo').textContent = fmt(t.bingos);
     $('my-full').textContent = fmt(t.fullCards);
+    $('my-most').textContent = t.mostSquares > 1 ? t.mostSquares + ' of ' + Core.CELLS : '–';
     renderCompleted();
     $('global-box').hidden = !globalTotals;
     if (globalTotals) {
@@ -495,6 +516,7 @@
       $('g-started').textContent = fmt(globalTotals.started);
       $('g-bingo').textContent = fmt(globalTotals.bingo);
       $('g-full').textContent = fmt(globalTotals.full);
+      $('g-most').textContent = globalTotals.most != null ? globalTotals.most + ' of ' + Core.CELLS : '–';
     }
   }
 
@@ -542,6 +564,11 @@
       state.totals.bingos++;
       track(EVENTS.bingo);
     });
+    // Each new level of squares on this card is reported once; the free space is the first square, so levels start at 2.
+    const squares = Core.markedCount(card.marked);
+    if (typeof r.max !== 'number') r.max = 1;
+    while (r.max < squares) { r.max++; track(squaresEvent(r.max)); }
+    state.totals.mostSquares = Math.max(state.totals.mostSquares || 0, squares);
     if (!r.full && Core.markedCount(card.marked) === Core.CELLS) {
       r.full = true;
       state.totals.fullCards++;
@@ -550,10 +577,11 @@
     }
   }
 
-  // Deal a new card from the list chosen under "Choose your list". With a seed the card is always the same
-  // for that seed and list (it is card 1 of the seed, like the first printed card); without one it is random.
+  // Deal a new card from the list chosen under "Choose your list". The card is card 1 of its seed (like the first
+  // printed card), so the same seed and list always give the same card. With no seed typed, a random one is used.
   async function doReroll(seed) {
-    const seedText = String(seed || '').trim();
+    // No seed typed: make one up anyway, so any card can be dealt again by typing the seed shown under it.
+    const seedText = String(seed || '').trim() || randomSeed();
     let source;
     try {
       source = await currentSource(seedText);
@@ -566,7 +594,7 @@
     const prev = state ? state.card : null;
     const hadMarks = prev && Core.markedCount(prev.marked) > 1;
     const wasFinished = !!(prev && prev.reported.full);
-    const card = Core.makeCard(source.terms, seedText ? Core.cardRng(seedText, 1) : rng, rng);
+    const card = Core.makeCard(source.terms, Core.cardRng(seedText, 1), rng);
     card.meta = source.meta;
     if (!state) state = normalise({ card: card, totals: {}, player: false });
     else state.card = card;
@@ -847,7 +875,6 @@
 
   function updateListUI() {
     const custom = prefs.mode === 'custom';
-    $('premade-pane').hidden = custom;
     $('custom-pane').hidden = !custom;
     const info = describeCustom();
     $('custom-status').textContent = info.text;
@@ -855,8 +882,11 @@
     $('make-card').disabled = !ok;
     $('print-btn').disabled = !ok;
     const list = activeList();
-    $('list-info').textContent = list ? 'Cards from this list use the ' + list.name + ' logo in the centre square.' : '';
+    $('list-info').textContent = custom ? 'Press “New card from this list” to deal from the squares you type below.'
+      : (list ? 'Press “New card from this list” to deal from it. The centre square shows the ' + list.name + ' logo.' : '');
   }
+
+  const CUSTOM_OPTION = '__custom__';   // the last choice in the list drop-down: "My own list"
 
   function setupListChooser() {
     const select = $('list-select');
@@ -866,22 +896,23 @@
       o.textContent = l.name;
       select.appendChild(o);
     });
+    const own = document.createElement('option');
+    own.value = CUSTOM_OPTION;
+    own.textContent = 'My own list (type your own squares)';
+    select.appendChild(own);
     if (!listById(prefs.listId)) prefs.listId = defaultList().id;
-    select.value = prefs.listId;
-    // Only one conference so far: no point showing a drop-down with a single choice.
-    $('list-select-row').hidden = manifest.lists.length < 2;
-    document.querySelectorAll('input[name="mode"]').forEach((r) => { r.checked = r.value === prefs.mode; });
+    select.value = prefs.mode === 'custom' ? CUSTOM_OPTION : prefs.listId;
     $('custom-terms').value = prefs.customText;
     $('seed').value = prefs.seed;
+    $('seed-details').open = !!prefs.seed;   // stays tucked away unless a seed is already in use
     $('print-count').max = String(MAX_PRINT);
 
-    select.addEventListener('change', () => { prefs.listId = select.value; savePrefs(); updateListUI(); });
-    document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener('change', () => {
-      if (!r.checked) return;
-      prefs.mode = r.value;
+    select.addEventListener('change', () => {
+      if (select.value === CUSTOM_OPTION) prefs.mode = 'custom';
+      else { prefs.mode = 'premade'; prefs.listId = select.value; }
       savePrefs();
       updateListUI();
-    }));
+    });
     $('custom-terms').addEventListener('input', () => { prefs.customText = $('custom-terms').value; savePrefs(); updateListUI(); });
     $('seed').addEventListener('input', () => { prefs.seed = $('seed').value.slice(0, 60); savePrefs(); });
     $('make-card').addEventListener('click', () => askReroll(prefs.seed.trim()));
@@ -912,12 +943,16 @@
     try {
       await window.BingoPrint.print({
         area: $('print-area'), cards: cards, perPage: perPage, seed: seed,
-        title: meta.title, listName: meta.name, logo: meta.logo, logoAlt: meta.logoAlt,
-        wordmark: C.siteLogo || '', fit: fitText, freeIndex: Core.FREE
+        title: meta.title, logo: meta.logo, logoAlt: meta.logoAlt,
+        fit: fitText, freeIndex: Core.FREE
       });
     } catch (e) {
       showToast('Sorry, the printable cards couldn’t be made.', null, null, 5000);
+      updateListUI();
+      return;
     }
+    // The cards don't show their seed, so tell the person which one made them (type it in to get the same stack again).
+    showToast('Seed for these cards: ' + seed, null, null, 10000);
     updateListUI();   // puts the button back to what the list allows
   }
 
@@ -975,7 +1010,7 @@
     $('view-share-emoji').addEventListener('click', shareCompletedEmoji);
     $('view-close').addEventListener('click', () => els.view.close());
     els.shareImage.addEventListener('click', onShareImage);
-    els.reroll.addEventListener('click', () => askReroll(''));   // a plain new card is always random, whatever the seed box says
+    els.reroll.addEventListener('click', () => askReroll(prefs.seed.trim()));   // uses the seed at the top, if there is one
     els.confirm.addEventListener('close', () => { if (els.confirm.returnValue === 'new') doReroll(pendingSeed); });
     $('clear-data').addEventListener('click', askClear);
     setupZoom();
@@ -1029,7 +1064,7 @@
 
     if (!state) {
       // A first visit deals from the first premade list, unless the person had already chosen a usable list of their own.
-      if (prefs.mode === 'custom' && !describeCustom().enough) { prefs.mode = 'premade'; updateListUI(); }
+      if (prefs.mode === 'custom' && !describeCustom().enough) { prefs.mode = 'premade'; $('list-select').value = prefs.listId; updateListUI(); }
       await doReroll(prefs.seed.trim());
       if (editionReset) {
         showToast('A new conference has started, so your old card, totals and completed cards were cleared. Here is a fresh card.', null, null, 12000);

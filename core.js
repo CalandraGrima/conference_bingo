@@ -90,7 +90,7 @@
       id: Date.now().toString(36) + Math.floor((idRng || rng)() * 1e9).toString(36),
       terms: cells,
       marked: marked,
-      reported: { started: false, lines: [], full: false }   // lines = ids of lines already counted
+      reported: { started: false, lines: [], full: false, max: 1 }   // lines = ids of lines already counted; max = most squares reported so far (the free space is 1)
     };
   }
 

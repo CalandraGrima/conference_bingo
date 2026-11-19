@@ -6,10 +6,10 @@ A static bingo site for a conference. Everyone gets a random 5x5 card built from
 
 ## Choosing a list, seeds and printing
 
-- **Premade lists.** Each conference has its own list of terms and its own centre-square logo. The "Choose your list" section lists them.
-- **My own list.** Anyone can switch to "My own list", type or paste squares (one per line, at least 24 different ones) and make a card from them. Cards from a typed list say FREE in the centre instead of a logo, and the page heading and shared images use `customTitle` from `config.js`.
-- **Seed (optional).** Type any word in the seed box and "Make a card from this list" gives the same card every time for that list and seed, so a group can type the same word to get matching cards. The plain "New card" button is always random. The seed card is also card 1 of the same seed when printing.
-- **Print bingo cards.** Pick how many cards (up to 100) and how many per page (1, 2 or 4) and press "Create printable cards". The browser's print window opens: choose "Save as PDF" for a PDF or pick a printer. Every card is different, in plain black and white, and shows the list name, the seed and its number ("card 3 of 20") at the bottom. If you leave the seed empty a random one is made and printed on the cards, so the same stack can be made again by typing it in.
+- **Premade lists.** Each conference has its own list of terms and its own centre-square logo. The "Choose your list" drop-down shows each list by its name, so earlier conferences stay available when new ones are added.
+- **My own list.** Anyone can pick "My own list" at the bottom of that drop-down, type or paste squares (one per line, at least 24 different ones) and make a card from them. Cards from a typed list say FREE in the centre instead of a logo, and the page heading and shared images use `customTitle` from `config.js`.
+- **Seed (optional).** The seed box is at the top of the page. Type any word and "New card" (and "New card from this list") gives the same card every time for that list and seed, so a group can type the same word to get matching cards. Leave it empty for a random card. The seed card is also card 1 of the same seed when printing.
+- **Print bingo cards.** Pick how many cards (up to 100) and how many per page (1, 2, 4 or 6) and press "Create printable cards". The browser's print window opens: choose "Save as PDF" for a PDF or pick a printer. Every card is different and in plain black and white, with the list's title above the grid. If you leave the seed empty a random one is used and shown in a message when the print window opens; type it into the seed box later to make the same stack again.
 
 ## Set it up
 
@@ -64,4 +64,4 @@ The "Everyone so far" totals use [GoatCounter](https://www.goatcounter.com/), wh
 2. In GoatCounter, turn on **Settings → Allow adding visitor counts on your website**.
 3. After some play, check that `https://CODE.goatcounter.com/counter/card-started.json` returns a count. GoatCounter's documentation doesn't say outright that this works for event names, so check it before the conference. If it fails, the totals just stay hidden.
 
-Four anonymous events are sent: `new-player`, `card-started`, `bingo` (one per completed line) and `full-card`. The counts are self-reported, "players" means devices, and totals can lag by up to four hours. If a browser sends Do Not Track or Global Privacy Control, nothing is loaded or sent for that visitor.
+Anonymous events are sent for: `new-player`, `card-started`, `bingo` (one per completed line), `full-card`, and `squares-2` to `squares-25` (a card sends each one the first time it reaches that many marked squares, counting the free space as 1). The "Most squares on a card" total is the highest `squares-N` that has a count, so check that `https://CODE.goatcounter.com/counter/squares-2.json` returns a count after some play. The counts are self-reported, "players" means devices, and totals can lag by up to four hours. If a browser sends Do Not Track or Global Privacy Control, nothing is loaded or sent for that visitor.

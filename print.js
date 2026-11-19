@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
 
-  var PER_PAGE = { 1: true, 2: true, 4: true };
+  var PER_PAGE = { 1: true, 2: true, 4: true, 6: true };
 
   function el(tag, className, text) {
     var e = document.createElement(tag);
@@ -51,14 +51,8 @@
     return sizes;
   }
 
-  function buildCard(o, terms, number, sizes) {
+  function buildCard(o, terms, sizes) {
     var card = el('div', 'print-card');
-    if (o.wordmark) {
-      var mark = el('img', 'p-wordmark');
-      mark.src = o.wordmark;
-      mark.alt = '';
-      card.appendChild(mark);
-    }
     card.appendChild(el('h2', 'p-title', o.title));
     var grid = el('div', 'p-grid');
     terms.forEach(function (t, i) {
@@ -71,7 +65,6 @@
       grid.appendChild(c);
     });
     card.appendChild(grid);
-    card.appendChild(el('p', 'p-foot', o.listName + '  ·  seed ' + o.seed + '  ·  card ' + number + ' of ' + o.cards.length));
     return card;
   }
 
@@ -88,8 +81,8 @@
     area.textContent = '';
   }
 
-  /* o: { area, cards (lists of 25 terms, null in the centre), perPage (1, 2 or 4), title, listName, seed,
-          logo, wordmark, fit (function that shrinks text to fit a list of squares), freeIndex }
+  /* o: { area, cards (lists of 25 terms, null in the centre), perPage (1, 2, 4 or 6), title,
+          logo, fit (function that shrinks text to fit a list of squares), freeIndex }
      Resolves once the print window has been opened. */
   function print(o) {
     var perPage = PER_PAGE[o.perPage] ? o.perPage : 2;
@@ -106,7 +99,7 @@
           page = el('div', 'print-page pp-' + perPage);
           area.appendChild(page);
         }
-        page.appendChild(buildCard(o, terms, i + 1, sizes));
+        page.appendChild(buildCard(o, terms, sizes));
       });
       return waitForImages(area);
     }).then(function () {
