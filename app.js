@@ -6,6 +6,8 @@
 
   const STORAGE_KEY = 'conference-bingo:v1';
   const THEME_KEY = 'conference-bingo:theme';   // "light" or "dark"; no value means follow the device
+  const PREFS_KEY = 'conference-bingo:prefs';   // which list is chosen, the pasted list and the seed
+  const MAX_PRINT = 100;                        // most cards one print job can make
   // GoatCounter event names. A card is counted once, each line is counted once per card,
   // and "new-player" is sent once per device.
   const EVENTS = { player: 'new-player', started: 'card-started', bingo: 'bingo', full: 'full-card' };
@@ -18,7 +20,9 @@
   const $ = (id) => document.getElementById(id);
   let els = {};
   let state = null;          // { card, totals, player }
-  let terms = null;
+  let manifest = null;       // lists/lists.json: { default, lists: [...] }
+  const termCache = {};      // premade list id -> parsed terms
+  let prefs = { mode: 'premade', listId: '', customText: '', seed: '' };
   let globalTotals = null;   // { player, started, bingo, full } from GoatCounter, when available
   let cells = [];
   let storageOk = true;
@@ -149,30 +153,105 @@
     return globalTotals;
   }
 
-  // ---------- terms ----------
-  async function ensureTerms() {
-    if (!terms) {
+  // ---------- lists and terms ----------
+  const listById = (id) => (manifest && manifest.lists.find((l) => l.id === id)) || null;
+  const defaultList = () => (manifest && (listById(manifest.default) || manifest.lists[0])) || null;
+  const activeList = () => listById(prefs.listId) || defaultList();
+
+  function fileProblem(what) {
+    if (location.protocol === 'file:') {
+      return new Error('Browsers won’t let this page read ' + what + ' when it is opened straight from a file. ' +
+        'In this folder, run “python3 -m http.server 8000” and open http://localhost:8000 instead (or publish the site to GitHub Pages).');
+    }
+    return new Error('Couldn’t load ' + what + '. Check your connection and try again.');
+  }
+
+  async function loadManifest() {
+    if (manifest) return manifest;
+    let data;
+    try {
+      const res = await fetch('lists/lists.json', { cache: 'no-cache' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      data = await res.json();
+    } catch (e) {
+      throw fileProblem('the list of conferences');
+    }
+    const lists = (data && Array.isArray(data.lists) ? data.lists : []).filter((l) => l && l.id && l.name && l.terms);
+    if (!lists.length) throw new Error('lists/lists.json has no lists in it.');
+    manifest = { default: data.default, lists: lists };
+    return manifest;
+  }
+
+  async function loadListTerms(list) {
+    if (!termCache[list.id]) {
       let text;
       try {
-        const res = await fetch(C.termsFile || 'terms.txt', { cache: 'no-cache' });
+        const res = await fetch('lists/' + list.terms, { cache: 'no-cache' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         text = await res.text();
       } catch (e) {
-        if (location.protocol === 'file:') {
-          throw new Error('Browsers won’t let this page read the terms file when it is opened straight from a file. ' +
-            'In this folder, run “python3 -m http.server 8000” and open http://localhost:8000 instead (or publish the site to GitHub Pages).');
-        }
-        throw new Error('Couldn’t load the list of terms. Check your connection and try again.');
+        throw fileProblem('the terms for ' + list.name);
       }
-      terms = Core.parseTerms(text);
-      reportTermProblems();
+      const parsed = Core.parseTerms(text);
+      reportTermProblems(parsed);
+      termCache[list.id] = parsed;
     }
-    if (terms.length < Core.NEEDED) {
-      const found = terms.length;
-      terms = null;
-      throw new Error('The terms file has only ' + found + ' different terms; at least ' + Core.NEEDED + ' are needed.');
+    const found = termCache[list.id];
+    if (found.length < Core.NEEDED) {
+      delete termCache[list.id];
+      throw new Error('The ' + list.name + ' list has only ' + found.length + ' different terms; at least ' + Core.NEEDED + ' are needed.');
     }
-    return terms;
+    return found;
+  }
+
+  const customTerms = () => Core.parseTerms(prefs.customText);
+
+  // What a card remembers about where it came from, so its heading, centre square and shared image stay right
+  // even if the premade lists change later.
+  function metaForList(list, seed) {
+    return { id: list.id, name: list.name, title: list.title || list.name, logo: list.logo ? 'lists/' + list.logo : '',
+      logoAlt: list.logoAlt || (list.name + ' logo'), seed: seed || '' };
+  }
+  function customMeta(seed) {
+    return { id: 'custom', name: 'My own list', title: C.customTitle || 'Conference Bingo', logo: '', logoAlt: '', seed: seed || '' };
+  }
+  // Cards saved before there were several lists have no meta: they were all from the first premade list.
+  function metaOf(card) {
+    if (card && card.meta) return card.meta;
+    const list = defaultList();
+    return list ? metaForList(list) : { id: '', name: '', title: C.title || 'Conference Bingo', logo: '', logoAlt: '', seed: '' };
+  }
+
+  // The terms and meta for whatever is chosen in "Choose your list". Throws an Error with a readable message.
+  async function currentSource(seed) {
+    await loadManifest();
+    if (prefs.mode === 'custom') {
+      const found = customTerms();
+      if (found.length < Core.NEEDED) {
+        throw new Error('Your list has ' + found.length + ' different squares; at least ' + Core.NEEDED + ' are needed (one per line).');
+      }
+      return { terms: found, meta: customMeta(seed) };
+    }
+    const list = activeList();
+    return { terms: await loadListTerms(list), meta: metaForList(list, seed) };
+  }
+
+  // ---------- saved choices (list, pasted list, seed) ----------
+  function readPrefs() {
+    if (!storageOk) return;
+    try {
+      const p = JSON.parse(localStorage.getItem(PREFS_KEY));
+      if (p && typeof p === 'object') {
+        prefs.mode = p.mode === 'custom' ? 'custom' : 'premade';
+        prefs.listId = typeof p.listId === 'string' ? p.listId : '';
+        prefs.customText = typeof p.customText === 'string' ? p.customText.slice(0, 20000) : '';
+        prefs.seed = typeof p.seed === 'string' ? p.seed.slice(0, 60) : '';
+      }
+    } catch (e) { /* use the defaults */ }
+  }
+  function savePrefs() {
+    if (!storageOk) return;
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) { /* the choices just won't be remembered */ }
   }
 
   // ---------- light / dark theme ----------
@@ -202,18 +281,18 @@
 
   // ---------- term warnings ----------
   // Terms that are too long still work, but their text is shrunk to fit. Warn in the browser console
-  // always, and show a visible list when the address ends in ?check (handy after editing terms.txt).
-  function reportTermProblems() {
+  // always, and show a visible list when the address ends in ?check (handy after editing a list in lists/).
+  function reportTermProblems(terms) {
     const max = Number(C.maxTermLength) || 50;
     const long = Core.findLongTerms(terms, max);
     if (long.length) {
       console.warn('Conference Bingo: ' + long.length + ' of ' + terms.length + ' terms are longer than ' + max +
         ' characters and will show in small text:\n' + long.map((t) => '  (' + Array.from(t).length + ') ' + t).join('\n'));
     }
-    if (/[?&]check(=|&|$)/.test(location.search)) showCheck(long, max);
+    if (/[?&]check(=|&|$)/.test(location.search)) showCheck(terms, long, max);
   }
 
-  function showCheck(long, max) {
+  function showCheck(terms, long, max) {
     $('check').hidden = false;
     $('check-summary').textContent = long.length
       ? long.length + ' of ' + terms.length + ' terms are longer than ' + max + ' characters. They still work, but their text is shrunk to fit and may be hard to read on a phone. Consider shortening:'
@@ -231,20 +310,34 @@
   function showNotice(msg) { els.notice.textContent = msg; els.notice.hidden = false; }
   function hideNotice() { els.notice.hidden = true; }
 
+  // The centre square: the list's logo when it has one, otherwise the word FREE.
+  function fillFreeSquare(el, meta) {
+    if (meta.logo) {
+      const img = document.createElement('img');
+      img.src = meta.logo;
+      img.alt = (meta.logoAlt || 'Conference logo') + ' (free space)';
+      img.decoding = 'async';
+      el.appendChild(img);
+    } else {
+      const word = document.createElement('span');
+      word.className = 'free-text';
+      word.textContent = 'FREE';
+      el.appendChild(word);
+    }
+  }
+
   function buildGrid() {
     els.card.textContent = '';
     cells = [];
+    updateHeading();
     if (state) {
+      const meta = metaOf(state.card);
       state.card.terms.forEach((term, i) => {
         let el;
         if (i === Core.FREE) {
           el = document.createElement('div');
           el.className = 'cell free';
-          const img = document.createElement('img');
-          img.src = C.logo || 'free_space_image.png';
-          img.alt = (C.logoAlt || 'Conference logo') + ' (free space)';
-          img.decoding = 'async';
-          el.appendChild(img);
+          fillFreeSquare(el, meta);
         } else {
           el = document.createElement('button');
           el.type = 'button';
@@ -295,6 +388,7 @@
       if (i === Core.FREE) {
         const img = el.querySelector('img');
         if (img) { const big = img.cloneNode(); big.alt = ''; box.appendChild(big); }
+        else box.textContent = 'FREE';
       } else {
         box.textContent = state.card.terms[i];
       }
@@ -337,11 +431,23 @@
     els.card.addEventListener('contextmenu', (e) => { if (shown || lastType === 'touch' || lastType === 'pen') e.preventDefault(); });
   }
 
+  // The page heading follows the card's own list (premade lists have their own title).
+  function updateHeading() {
+    $('title').textContent = state ? metaOf(state.card).title : (C.title || 'Conference Bingo');
+  }
+
+  function updateSourceLine() {
+    if (!state) { els.source.textContent = ''; return; }
+    const meta = metaOf(state.card);
+    els.source.textContent = 'List: ' + meta.name + (meta.seed ? ' · Seed: ' + meta.seed : '');
+  }
+
   function updateView() {
     const have = !!state;
     els.share.disabled = !have;
     els.shareImage.disabled = !have;
     updateStats();
+    updateSourceLine();
     if (!have) {
       els.banner.hidden = true;
       els.progress.textContent = '';
@@ -417,7 +523,7 @@
 
   function saveCompleted(s, card) {
     if (s.completed.some((c) => c.id === card.id)) return;
-    s.completed.push({ id: card.id, terms: card.terms.slice(), at: Date.now() });
+    s.completed.push({ id: card.id, terms: card.terms.slice(), at: Date.now(), meta: metaOf(card) });
   }
 
   // Each milestone is counted once, so unticking and re-ticking can't inflate the totals.
@@ -444,9 +550,13 @@
     }
   }
 
-  async function doReroll() {
+  // Deal a new card from the list chosen under "Choose your list". With a seed the card is always the same
+  // for that seed and list (it is card 1 of the seed, like the first printed card); without one it is random.
+  async function doReroll(seed) {
+    const seedText = String(seed || '').trim();
+    let source;
     try {
-      await ensureTerms();
+      source = await currentSource(seedText);
     } catch (e) {
       if (state) showToast(e.message, null, null, 6000);
       else showNotice(e.message);
@@ -456,7 +566,8 @@
     const prev = state ? state.card : null;
     const hadMarks = prev && Core.markedCount(prev.marked) > 1;
     const wasFinished = !!(prev && prev.reported.full);
-    const card = Core.makeCard(terms, rng);
+    const card = Core.makeCard(source.terms, seedText ? Core.cardRng(seedText, 1) : rng, rng);
+    card.meta = source.meta;
     if (!state) state = normalise({ card: card, totals: {}, player: false });
     else state.card = card;
     lastBanner = '';
@@ -495,16 +606,18 @@
     dlg.returnValue = '';
     dlg.showModal();
   }
-  function askReroll() {
-    if (!state) { doReroll(); return; }
+  let pendingSeed = '';   // the seed to use if the person confirms the new-card question
+  function askReroll(seed) {
+    pendingSeed = seed || '';
+    if (!state) { doReroll(pendingSeed); return; }
     const finished = state.card.reported.full;   // a card that was completed, even if a square has since been unticked
     const mine = Core.markedCount(state.card.marked) - 1;   // the free space doesn't count
-    if (!finished && mine <= 0) { doReroll(); return; }
+    if (!finished && mine <= 0) { doReroll(pendingSeed); return; }
     if (typeof els.confirm.showModal !== 'function') {
       const text = finished
         ? 'Start a new card? Your finished card keeps counting towards your score and stays saved under Completed cards.'
         : 'Start a new card? Your current card and its ' + mine + ' marked squares will be lost.';
-      if (window.confirm(text)) doReroll();
+      if (window.confirm(text)) doReroll(pendingSeed);
       return;
     }
     els.confirmLost.hidden = finished;
@@ -551,7 +664,7 @@
     // (Safari refuses to open the share sheet otherwise). The combined totals are
     // fetched when the page loads, and are simply left out if they aren't there.
     const text = Core.buildShareText({
-      title: C.title || 'Conference Bingo',
+      title: metaOf(card).title,
       card: card,
       totals: state.totals,
       global: globalTotals,
@@ -592,14 +705,17 @@
   let viewEntry = null;
   let viewImage = null;   // { id, blob }, prepared when the card is opened so sharing can start straight from a tap
 
+  const logoUrlOf = (meta) => (meta.logo ? new URL(meta.logo, location.href).href : '');
+
   function renderEntryImage(entry) {
+    const meta = metaOf(entry);
     return window.BingoImage.render({
-      title: C.title || 'Conference Bingo',
+      title: meta.title,
       card: { terms: entry.terms, marked: Array(Core.CELLS).fill(true) },
       lineIds: Core.LINES.map((_, i) => i),
       count: Core.CELLS,
       status: 'Full card!',
-      logoUrl: new URL(C.logo || 'free_space_image.png', location.href).href,
+      logoUrl: logoUrlOf(meta),
       siteLogoUrl: C.siteLogo ? new URL(C.siteLogo, location.href).href : '',
       footer: (C.shareUrl || (location.origin + location.pathname)).replace(/^https?:\/\//, '').replace(/\/$/, '')
     });
@@ -616,10 +732,7 @@
       const el = document.createElement('div');
       el.className = i === Core.FREE ? 'cell free' : 'cell done';
       if (i === Core.FREE) {
-        const img = document.createElement('img');
-        img.src = C.logo || 'free_space_image.png';
-        img.alt = (C.logoAlt || 'Conference logo') + ' (free space)';
-        el.appendChild(img);
+        fillFreeSquare(el, metaOf(entry));
       } else {
         const span = document.createElement('span');
         span.textContent = term;
@@ -653,13 +766,14 @@
   function renderCardImage() {
     const card = state.card;
     const url = C.shareUrl || (location.origin + location.pathname);
+    const meta = metaOf(card);
     return window.BingoImage.render({
-      title: C.title || 'Conference Bingo',
+      title: meta.title,
       card: card,
       lineIds: Core.completedLineIds(card.marked),
       count: Core.markedCount(card.marked),
       status: Core.statusLabel(card.marked),
-      logoUrl: new URL(C.logo || 'free_space_image.png', location.href).href,
+      logoUrl: logoUrlOf(meta),
       siteLogoUrl: C.siteLogo ? new URL(C.siteLogo, location.href).href : '',
       footer: url.replace(/^https?:\/\//, '').replace(/\/$/, '')
     });
@@ -696,7 +810,7 @@
     const file = new File([blob], 'conference-bingo.png', { type: 'image/png' });
     const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (touch && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: C.title || 'Conference Bingo' })
+      navigator.share({ files: [file], title: $('title').textContent || 'Conference Bingo' })
         .catch((e) => { if (!e || e.name !== 'AbortError') downloadImage(blob); });
       return;
     }
@@ -710,6 +824,101 @@
     els.shareImage.disabled = true;
     renderCardImage().then(deliverImage, () => showToast('Sorry, the image couldn’t be made.', null, null, 5000))
       .then(() => { els.shareImage.disabled = !state; });
+  }
+
+  // ---------- choose your list (premade or pasted), seed ----------
+  const clampCount = (v) => Math.min(MAX_PRINT, Math.max(1, Math.floor(Number(v)) || 1));
+
+  function randomSeed() {
+    return Math.floor(rng() * Math.pow(36, 6)).toString(36).padStart(6, '0');
+  }
+
+  // Text under the pasted list: how many squares it has, and whether that is enough.
+  function describeCustom() {
+    const found = customTerms();
+    const max = Number(C.maxTermLength) || 50;
+    const long = Core.findLongTerms(found, max).length;
+    let text = found.length + (found.length === 1 ? ' square' : ' squares');
+    if (found.length < Core.NEEDED) text += '. Add ' + (Core.NEEDED - found.length) + ' more (you need at least ' + Core.NEEDED + ' different ones).';
+    else text += '. That is enough. ' + (found.length < 40 ? 'More than 40 makes the cards more varied.' : '');
+    if (long) text += ' ' + long + (long === 1 ? ' square is' : ' squares are') + ' longer than ' + max + ' characters and will be shown in small text.';
+    return { enough: found.length >= Core.NEEDED, text: text };
+  }
+
+  function updateListUI() {
+    const custom = prefs.mode === 'custom';
+    $('premade-pane').hidden = custom;
+    $('custom-pane').hidden = !custom;
+    const info = describeCustom();
+    $('custom-status').textContent = info.text;
+    const ok = custom ? info.enough : true;
+    $('make-card').disabled = !ok;
+    $('print-btn').disabled = !ok;
+    const list = activeList();
+    $('list-info').textContent = list ? 'Cards from this list use the ' + list.name + ' logo in the centre square.' : '';
+  }
+
+  function setupListChooser() {
+    const select = $('list-select');
+    manifest.lists.forEach((l) => {
+      const o = document.createElement('option');
+      o.value = l.id;
+      o.textContent = l.name;
+      select.appendChild(o);
+    });
+    if (!listById(prefs.listId)) prefs.listId = defaultList().id;
+    select.value = prefs.listId;
+    // Only one conference so far: no point showing a drop-down with a single choice.
+    $('list-select-row').hidden = manifest.lists.length < 2;
+    document.querySelectorAll('input[name="mode"]').forEach((r) => { r.checked = r.value === prefs.mode; });
+    $('custom-terms').value = prefs.customText;
+    $('seed').value = prefs.seed;
+    $('print-count').max = String(MAX_PRINT);
+
+    select.addEventListener('change', () => { prefs.listId = select.value; savePrefs(); updateListUI(); });
+    document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener('change', () => {
+      if (!r.checked) return;
+      prefs.mode = r.value;
+      savePrefs();
+      updateListUI();
+    }));
+    $('custom-terms').addEventListener('input', () => { prefs.customText = $('custom-terms').value; savePrefs(); updateListUI(); });
+    $('seed').addEventListener('input', () => { prefs.seed = $('seed').value.slice(0, 60); savePrefs(); });
+    $('make-card').addEventListener('click', () => askReroll(prefs.seed.trim()));
+    $('print-btn').addEventListener('click', onPrint);
+    updateListUI();
+  }
+
+  // ---------- printing a stack of cards ----------
+  async function onPrint() {
+    if (!window.BingoPrint) return;
+    const count = clampCount($('print-count').value);
+    $('print-count').value = String(count);
+    const perPage = Number($('print-per').value) || 2;
+    let source;
+    try {
+      source = await currentSource('');
+    } catch (e) {
+      showToast(e.message, null, null, 6000);
+      return;
+    }
+    // With no seed typed, make one up and print it on every card, so the same stack can be made again later.
+    const seed = prefs.seed.trim() || randomSeed();
+    const cards = [];
+    for (let n = 1; n <= count; n++) cards.push(Core.makeCard(source.terms, Core.cardRng(seed, n), rng).terms);
+    const meta = source.meta;
+    $('print-btn').disabled = true;
+    showToast('Getting ' + count + (count === 1 ? ' card' : ' cards') + ' ready…', null, null, 3000);
+    try {
+      await window.BingoPrint.print({
+        area: $('print-area'), cards: cards, perPage: perPage, seed: seed,
+        title: meta.title, listName: meta.name, logo: meta.logo, logoAlt: meta.logoAlt,
+        wordmark: C.siteLogo || '', fit: fitText, freeIndex: Core.FREE
+      });
+    } catch (e) {
+      showToast('Sorry, the printable cards couldn’t be made.', null, null, 5000);
+    }
+    updateListUI();   // puts the button back to what the list allows
   }
 
   // ---------- acknowledgements and GitHub link ----------
@@ -743,7 +952,7 @@
       notice: $('notice'), banner: $('banner'), card: $('card'), progress: $('progress'),
       confirmLost: $('confirm-lost'), confirmDone: $('confirm-done'), view: $('view'),
       theme: $('theme'), share: $('share'), shareImage: $('share-image'), reroll: $('reroll'), confirm: $('confirm'), confirmCount: $('confirm-count'),
-      toast: $('toast'), toastMsg: $('toast-msg'), toastAction: $('toast-action')
+      toast: $('toast'), toastMsg: $('toast-msg'), toastAction: $('toast-action'), source: $('card-source')
     };
 
     if (C.title) $('title').textContent = C.title;
@@ -766,8 +975,8 @@
     $('view-share-emoji').addEventListener('click', shareCompletedEmoji);
     $('view-close').addEventListener('click', () => els.view.close());
     els.shareImage.addEventListener('click', onShareImage);
-    els.reroll.addEventListener('click', askReroll);
-    els.confirm.addEventListener('close', () => { if (els.confirm.returnValue === 'new') doReroll(); });
+    els.reroll.addEventListener('click', () => askReroll(''));   // a plain new card is always random, whatever the seed box says
+    els.confirm.addEventListener('close', () => { if (els.confirm.returnValue === 'new') doReroll(pendingSeed); });
     $('clear-data').addEventListener('click', askClear);
     setupZoom();
     // Two questions before anything is deleted: "Clear everything", then "Are you sure?".
@@ -800,20 +1009,28 @@
 
     storageOk = probeStorage();
     if (!storageOk) showStorageNotice();
-    state = readState();
-    buildGrid();
-
+    readPrefs();
     loadGoatCounter();
     if (trackingOn()) fetchGlobal().then(updateStats);
 
     try {
-      await ensureTerms();
+      await loadManifest();   // before the saved card is read: older cards take the first list's logo and title
     } catch (e) {
-      if (!state) showNotice(e.message);   // a saved card still works without the term list
+      state = readState();
+      buildGrid();
+      showNotice(e.message);
+      $('lists-box').hidden = true;
+      $('print-box').hidden = true;
       return;
     }
+    state = readState();
+    buildGrid();
+    setupListChooser();
+
     if (!state) {
-      await doReroll();
+      // A first visit deals from the first premade list, unless the person had already chosen a usable list of their own.
+      if (prefs.mode === 'custom' && !describeCustom().enough) { prefs.mode = 'premade'; updateListUI(); }
+      await doReroll(prefs.seed.trim());
       if (editionReset) {
         showToast('A new conference has started, so your old card, totals and completed cards were cleared. Here is a fresh card.', null, null, 12000);
       }

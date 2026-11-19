@@ -1,16 +1,16 @@
-# Checks terms.txt whenever it (or the settings) change. Terms that are too long show up as
+# Checks every premade list in lists/ whenever a list (or the settings) change. Terms that are too long show up as
 # warnings on the commit; too few terms makes the check fail. It never blocks publishing the site.
 name: Check terms
 
 on:
   push:
     paths:
-      - terms.txt
+      - 'lists/**'
       - config.js
       - scripts/check-terms.js
   pull_request:
     paths:
-      - terms.txt
+      - 'lists/**'
       - config.js
       - scripts/check-terms.js
   workflow_dispatch:

@@ -1,0 +1,13 @@
+{
+  "default": "abacbs-2026",
+  "lists": [
+    {
+      "id": "abacbs-2026",
+      "name": "ABACBS 2026",
+      "title": "ABACBS 2026 Bingo",
+      "terms": "abacbs-2026.txt",
+      "logo": "abacbs-2026.png",
+      "logoAlt": "ABACBS 2026 logo"
+    }
+  ]
+}

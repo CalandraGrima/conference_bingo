@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="ABACBS 2026 bingo: a random card every time, saved on your device, with a shareable emoji result.">
+  <meta name="description" content="Conference bingo: a random card every time, saved on your device, with a shareable emoji result. Use a premade list or your own, and print cards.">
   <title>Conference Bingo</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preload" href="fonts/barlow-condensed-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -38,12 +38,71 @@
     <div id="banner" class="banner" role="status" hidden></div>
     <div id="card" class="card" role="group" aria-label="Bingo card"></div>
     <p id="progress" class="progress"></p>
+    <p id="card-source" class="progress card-source"></p>
 
     <div class="actions">
       <button id="share" class="btn" type="button">Share as emoji</button>
       <button id="share-image" class="btn" type="button">Share as image</button>
       <button id="reroll" class="btn" type="button">New card</button>
     </div>
+
+    <section id="lists-box" class="stats" aria-labelledby="lists-heading">
+      <h2 id="lists-heading">Choose your list</h2>
+      <fieldset class="mode-row">
+        <legend class="sr-only">Where the squares come from</legend>
+        <label><input type="radio" name="mode" value="premade" checked> Premade list</label>
+        <label><input type="radio" name="mode" value="custom"> My own list</label>
+      </fieldset>
+
+      <div id="premade-pane">
+        <div id="list-select-row" class="field">
+          <label for="list-select">Conference</label>
+          <select id="list-select"></select>
+        </div>
+        <p id="list-info" class="hint"></p>
+      </div>
+
+      <div id="custom-pane" class="field" hidden>
+        <label for="custom-terms">Your squares, one per line</label>
+        <textarea id="custom-terms" rows="8" spellcheck="true" autocomplete="off"
+          placeholder="Someone says “synergy”&#10;The projector won’t connect&#10;A talk starts with “Sorry, I’m on mute”&#10;…"></textarea>
+        <p id="custom-status" class="hint" aria-live="polite"></p>
+        <p class="hint">Blank lines, repeats and lines starting with # are ignored. Shorter squares fit better. The centre square says FREE.</p>
+      </div>
+
+      <div class="field">
+        <label for="seed">Seed (optional)</label>
+        <input id="seed" type="text" maxlength="60" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Leave empty for a random card">
+        <p class="hint">The same seed with the same list always gives the same card, so a group can all type the same word to get matching cards. Used by the button below and by printing.</p>
+      </div>
+
+      <div class="actions">
+        <button id="make-card" class="btn" type="button">Make a card from this list</button>
+      </div>
+    </section>
+
+    <section id="print-box" class="stats" aria-labelledby="print-heading">
+      <h2 id="print-heading">Print bingo cards</h2>
+      <p class="hint">Makes a stack of different random cards from the list above, and uses the seed if you typed one. Each card shows its seed and number at the bottom, so you can make the same stack again.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="print-count">How many cards</label>
+          <input id="print-count" type="number" inputmode="numeric" min="1" max="100" value="8">
+        </div>
+        <div class="field">
+          <label for="print-per">Cards per page</label>
+          <select id="print-per">
+            <option value="1">1 (large)</option>
+            <option value="2" selected>2</option>
+            <option value="4">4 (small)</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="print-btn" class="btn" type="button">Create printable cards</button>
+      </div>
+      <p class="hint">Your browser’s print window opens. Pick “Save as PDF” as the printer for a PDF file, or choose a printer. Use A4 or Letter in portrait, with the default margins.</p>
+    </section>
 
     <section class="stats" aria-labelledby="stats-heading">
       <h2 id="stats-heading">Totals</h2>
@@ -76,7 +135,7 @@
 
     <section class="data-note" aria-labelledby="data-heading">
       <h2 id="data-heading">Your data</h2>
-      <p>Your card, your progress, your totals, your completed cards and your light/dark choice are stored on this device only, in your browser. Nothing you tap is sent anywhere, and there is no account and no login.</p>
+      <p>Your card, your progress, your totals, your completed cards, the list and seed you chose (including any list you typed in) and your light/dark choice are stored on this device only, in your browser. Nothing you tap is sent anywhere, and there is no account and no login.</p>
       <p id="counting-note">We use <a href="https://www.goatcounter.com/" rel="noopener">GoatCounter</a> to count visits and four anonymous milestones (a new player, a card started, a bingo, a full card), so we can show the combined totals above. It sets no cookies and does not store anything that identifies you. If your browser sends “Do Not Track” or Global Privacy Control, it is not loaded at all and the combined totals are not fetched.</p>
     </section>
 
@@ -151,9 +210,13 @@
     <button id="toast-action" class="toast-action" type="button" hidden></button>
   </div>
 
+  <!-- The printable cards are built here. Off screen normally; the only thing shown when printing. -->
+  <div id="print-area" aria-hidden="true"></div>
+
   <script src="config.js"></script>
   <script src="core.js"></script>
   <script src="card-image.js"></script>
+  <script src="print.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

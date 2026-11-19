@@ -101,7 +101,7 @@
   }
 
   function render(o) {
-    return Promise.all([loadImage(o.logoUrl), o.siteLogoUrl ? loadImage(o.siteLogoUrl) : null, fontsReady(o)]).then(function (results) {
+    return Promise.all([o.logoUrl ? loadImage(o.logoUrl) : null, o.siteLogoUrl ? loadImage(o.siteLogoUrl) : null, fontsReady(o)]).then(function (results) {
       var logo = results[0], siteLogo = results[1];
       return draw(o, logo, siteLogo).catch(function () { return draw(o, null, null); });   // retry without the logos if the browser refuses them
     });

@@ -1,8 +1,9 @@
 // Edit this file to customise the site. There is no build step:
 // save it, commit it, and GitHub Pages will publish the change.
 window.BINGO_CONFIG = {
-  // Shown as the page heading and at the top of shared results and images.
-  title: "ABACBS 2026 Bingo",
+  // Page heading before a card is dealt. Once there is a card, the heading is that list's own title
+  // (see lists/lists.json), and shared results and images use it too.
+  title: "Conference Bingo",
   // The text on the browser tab. Leave "" to use the title above.
   tabTitle: "Conference Bingo",
   subtitle: "Tap a square when you spot it. Complete a row, column or diagonal for a bingo!",
@@ -17,12 +18,11 @@ window.BINGO_CONFIG = {
   // open the site. Their old data on that device is deleted. Leave "" to never reset anyone.
   edition: "abacbs-2026",
 
-  // The free centre square.
-  logo: "free_space_image.png",
-  logoAlt: "ABACBS 2026 logo",
+  // Which premade list is dealt first, and what the premade lists are, lives in lists/lists.json
+  // (one entry per conference: its terms file and its centre-square logo). See the README.
 
-  // One term per line. You need at least 24 different terms.
-  termsFile: "terms.txt",
+  // Heading and image title used for cards made from a list someone pasted in themselves.
+  customTitle: "Conference Bingo",
 
   // Terms longer than this many characters trigger a warning, because they end up in small text
   // on a phone. Add ?check to the site address to see them listed, and see the README.
