@@ -1,8 +1,10 @@
 // Edit this file to customise the site. There is no build step:
 // save it, commit it, and GitHub Pages will publish the change.
 window.BINGO_CONFIG = {
-  // Shown as the page heading, the browser tab title, and at the top of shared results and images.
+  // Shown as the page heading and at the top of shared results and images.
   title: "ABACBS 2026 Bingo",
+  // The text on the browser tab. Leave "" to use the title above.
+  tabTitle: "Conference Bingo",
   subtitle: "Tap a square when you spot it. Complete a row, column or diagonal for a bingo!",
 
   // The Conference Bingo wordmark shown above the title (and at the top of shared images).
@@ -16,7 +18,7 @@ window.BINGO_CONFIG = {
   edition: "abacbs-2026",
 
   // The free centre square.
-  logo: "logo.png",
+  logo: "free_space_image.png",
   logoAlt: "ABACBS 2026 logo",
 
   // One term per line. You need at least 24 different terms.

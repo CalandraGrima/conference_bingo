@@ -241,7 +241,7 @@
           el = document.createElement('div');
           el.className = 'cell free';
           const img = document.createElement('img');
-          img.src = C.logo || 'logo.png';
+          img.src = C.logo || 'free_space_image.png';
           img.alt = (C.logoAlt || 'Conference logo') + ' (free space)';
           img.decoding = 'async';
           el.appendChild(img);
@@ -278,6 +278,63 @@
       // Last resort for a single very long word: break it rather than clip it.
       if (overflows(el)) el.style.overflowWrap = 'anywhere';
     });
+  }
+
+  // Press and hold a square to see it enlarged. It shows while the finger (or mouse button) is down and
+  // goes away on release; the release after a hold doesn't tick the square.
+  function setupZoom() {
+    const HOLD_MS = 450, MOVE_PX = 10;
+    const zoom = $('zoom'), box = $('zoom-card');
+    let timer = null, shown = false, suppress = false, suppressTimer = null, startX = 0, startY = 0, lastType = '';
+
+    function show(el) {
+      const i = cells.indexOf(el);
+      if (i < 0 || !state) return;
+      box.textContent = '';
+      box.classList.toggle('marked', i === Core.FREE || !!state.card.marked[i]);
+      if (i === Core.FREE) {
+        const img = el.querySelector('img');
+        if (img) { const big = img.cloneNode(); big.alt = ''; box.appendChild(big); }
+      } else {
+        box.textContent = state.card.terms[i];
+      }
+      zoom.hidden = false;
+      shown = true;
+    }
+    function release() {
+      clearTimeout(timer);
+      if (!shown) return;
+      shown = false;
+      zoom.hidden = true;
+      suppress = true;   // the click that follows a hold must not tick the square
+      clearTimeout(suppressTimer);
+      suppressTimer = setTimeout(() => { suppress = false; }, 600);
+    }
+
+    els.card.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      const el = e.target.closest && e.target.closest('.cell');
+      if (!el) return;
+      lastType = e.pointerType;
+      startX = e.clientX; startY = e.clientY;
+      clearTimeout(timer);
+      timer = setTimeout(() => show(el), HOLD_MS);
+    });
+    els.card.addEventListener('pointermove', (e) => {
+      if (!shown && timer && Math.hypot(e.clientX - startX, e.clientY - startY) > MOVE_PX) { clearTimeout(timer); timer = null; }
+    });
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    window.addEventListener('blur', release);
+    // Capture phase, so this runs before the square's own click handler.
+    els.card.addEventListener('click', (e) => {
+      if (!suppress) return;
+      suppress = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
+    // Touch screens open a menu on a long press; keep it away from the squares.
+    els.card.addEventListener('contextmenu', (e) => { if (shown || lastType === 'touch' || lastType === 'pen') e.preventDefault(); });
   }
 
   function updateView() {
@@ -486,12 +543,16 @@
 
   function onShare() {
     if (!state) return;
+    shareEmoji(state.card);
+  }
+
+  function shareEmoji(card) {
     // Everything here is synchronous so the browser still treats it as a direct tap
     // (Safari refuses to open the share sheet otherwise). The combined totals are
     // fetched when the page loads, and are simply left out if they aren't there.
     const text = Core.buildShareText({
       title: C.title || 'Conference Bingo',
-      card: state.card,
+      card: card,
       totals: state.totals,
       global: globalTotals,
       url: C.shareUrl || (location.origin + location.pathname),
@@ -538,7 +599,7 @@
       lineIds: Core.LINES.map((_, i) => i),
       count: Core.CELLS,
       status: 'Full card!',
-      logoUrl: new URL(C.logo || 'logo.png', location.href).href,
+      logoUrl: new URL(C.logo || 'free_space_image.png', location.href).href,
       siteLogoUrl: C.siteLogo ? new URL(C.siteLogo, location.href).href : '',
       footer: (C.shareUrl || (location.origin + location.pathname)).replace(/^https?:\/\//, '').replace(/\/$/, '')
     });
@@ -556,7 +617,7 @@
       el.className = i === Core.FREE ? 'cell free' : 'cell done';
       if (i === Core.FREE) {
         const img = document.createElement('img');
-        img.src = C.logo || 'logo.png';
+        img.src = C.logo || 'free_space_image.png';
         img.alt = (C.logoAlt || 'Conference logo') + ' (free space)';
         el.appendChild(img);
       } else {
@@ -572,6 +633,12 @@
     if (window.BingoImage) {
       renderEntryImage(entry).then((blob) => { if (viewEntry === entry) viewImage = { id: entry.id, blob: blob }; }, () => {});
     }
+  }
+
+  // A completed card has every square marked.
+  function shareCompletedEmoji() {
+    if (!viewEntry || !state) return;
+    shareEmoji({ terms: viewEntry.terms, marked: Array(Core.CELLS).fill(true) });
   }
 
   function shareCompleted() {
@@ -592,7 +659,7 @@
       lineIds: Core.completedLineIds(card.marked),
       count: Core.markedCount(card.marked),
       status: Core.statusLabel(card.marked),
-      logoUrl: new URL(C.logo || 'logo.png', location.href).href,
+      logoUrl: new URL(C.logo || 'free_space_image.png', location.href).href,
       siteLogoUrl: C.siteLogo ? new URL(C.siteLogo, location.href).href : '',
       footer: url.replace(/^https?:\/\//, '').replace(/\/$/, '')
     });
@@ -679,7 +746,8 @@
       toast: $('toast'), toastMsg: $('toast-msg'), toastAction: $('toast-action')
     };
 
-    if (C.title) { document.title = C.title; $('title').textContent = C.title; }
+    if (C.title) $('title').textContent = C.title;
+    if (C.tabTitle || C.title) document.title = C.tabTitle || C.title;
     if (C.siteLogo) {
       const mark = $('site-logo');
       mark.src = C.siteLogo;
@@ -695,11 +763,13 @@
     els.theme.addEventListener('click', cycleTheme);
     els.share.addEventListener('click', onShare);
     $('view-share').addEventListener('click', shareCompleted);
+    $('view-share-emoji').addEventListener('click', shareCompletedEmoji);
     $('view-close').addEventListener('click', () => els.view.close());
     els.shareImage.addEventListener('click', onShareImage);
     els.reroll.addEventListener('click', askReroll);
     els.confirm.addEventListener('close', () => { if (els.confirm.returnValue === 'new') doReroll(); });
     $('clear-data').addEventListener('click', askClear);
+    setupZoom();
     // Two questions before anything is deleted: "Clear everything", then "Are you sure?".
     $('clear-confirm').addEventListener('close', () => {
       if ($('clear-confirm').returnValue !== 'clear') return;

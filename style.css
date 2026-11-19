@@ -235,6 +235,7 @@ h3 { font-size: .95rem; margin: 0 0 6px; }
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  -webkit-touch-callout: none;                /* no copy/save menu when a square is held */
 }
 
 /* Taller squares on phones give long terms more room. */
@@ -302,7 +303,8 @@ h3 { font-size: .95rem; margin: 0 0 6px; }
 }
 .btn:disabled { opacity: .5; cursor: default; }
 /* The share buttons and the New card button are bigger than the rest. */
-#share, #share-image, #reroll, #view-share {
+#share, #share-image, #reroll, #view-share,
+#view-share-emoji {
   min-height: 48px;
   padding: 8px 24px;
   font-size: 1.1rem;
@@ -368,6 +370,47 @@ dialog h2 { margin-top: 0; }
 #confirm-done[hidden] { display: none; }
 .dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, .35);
+  pointer-events: none;   /* the finger that is holding the square keeps control until it lets go */
+}
+.zoom[hidden] { display: none; }
+.zoom-card {
+  position: relative;
+  width: min(92vw, 440px);
+  max-height: 80vh;
+  overflow: auto;
+  padding: 36px 28px;
+  text-align: center;
+  font-size: clamp(1.7rem, 7vw, 2.4rem);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--square-border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .4);
+  animation: zoom-in .15s ease-out;
+}
+.zoom-card.marked { color: var(--marked-fg); background: var(--marked-bg); }
+.zoom-card.marked::after {
+  content: "\2713";
+  position: absolute;
+  top: 6px;
+  right: 14px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--tick);
+}
+.zoom-card img { display: block; width: 100%; max-width: 280px; height: auto; margin: 0 auto; background: #ffffff; }
+@keyframes zoom-in { from { transform: scale(.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
 .toast {
   position: fixed;
   left: 50%;
@@ -397,5 +440,6 @@ dialog h2 { margin-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   .banner.pop { animation: none; }
   .btn, .theme-btn, .cell, .toast-action { transition: none; }
+  .zoom-card { animation: none; }
   .btn:active, button.cell:active { transform: none !important; }
 }
