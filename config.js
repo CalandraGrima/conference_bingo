@@ -40,7 +40,11 @@ window.BINGO_CONFIG = {
   // Extra thank-yous for the Acknowledgements section (Barlow Condensed and GoatCounter are already there).
   // Each one is plain text, or { text: "...", url: "https://..." } to make it a link. For example:
   //   acknowledgements: ["Bingo terms suggested by the ABACBS community", { text: "ABACBS 2026", url: "https://..." }]
-  acknowledgements: ["Partners in bingo crimes: Caitlin Page and Zunair Khurram"],
+  acknowledgements: [
+    "The original website was created, by hand with no AI, by Michael Nakai",
+    "This website was originally created, with AI, by Calandra Grima",
+    "These bingos are organised by the binfie bingo bitches: Calandra Grima, Caitlin Page, and Zunair Khurram"
+  ],
 
   // Your GoatCounter code, e.g. "mybingo" for https://mybingo.goatcounter.com
   // Leave "" to switch all counting off (the combined totals are then hidden too).
