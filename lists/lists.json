@@ -1,0 +1,21 @@
+{
+  "default": "abacbs-2026",
+  "lists": [
+    {
+      "id": "abacbs-2026",
+      "name": "ABACBS 2026",
+      "title": "ABACBS 2026 Bingo",
+      "terms": "abacbs-2026.txt",
+      "logo": "abacbs-2026.png",
+      "logoAlt": "ABACBS 2026 logo"
+    },
+    {
+      "id": "pmacsymp-2026",
+      "name": "Peter Mac Symposium 2026 (Legacy Import)",
+      "title": "Peter Mac Symposium 2026 Bingo",
+      "terms": "pmacsymp-2026.txt",
+      "logo": "pmacsymp-2026.png",
+      "logoAlt": "pmacsymp-2026 logo"
+    }
+  ]
+}
