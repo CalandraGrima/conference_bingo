@@ -51,9 +51,13 @@
     return sizes;
   }
 
-  function buildCard(o, terms, sizes) {
+  function buildCard(o, terms, seed, sizes) {
     var card = el('div', 'print-card');
-    card.appendChild(el('h2', 'p-title', o.title));
+    var head = el('div', 'p-head');
+    head.appendChild(el('span', 'p-head-gap'));   // balances the seed, so the title stays centred
+    head.appendChild(el('h2', 'p-title', o.title));
+    head.appendChild(el('span', 'p-seed', 'Seed: ' + seed));   // top right; typing it on the website gives this card back
+    card.appendChild(head);
     var grid = el('div', 'p-grid');
     terms.forEach(function (t, i) {
       if (i === o.freeIndex) { grid.appendChild(freeCell(o)); return; }
@@ -81,7 +85,7 @@
     area.textContent = '';
   }
 
-  /* o: { area, cards (lists of 25 terms, null in the centre), perPage (1, 2, 4 or 6), title,
+  /* o: { area, cards (lists of 25 terms, null in the centre), perPage (1, 2, 4 or 6), title, seeds (one per card),
           logo, fit (function that shrinks text to fit a list of squares), freeIndex }
      Resolves once the print window has been opened. */
   function print(o) {
@@ -99,7 +103,7 @@
           page = el('div', 'print-page pp-' + perPage);
           area.appendChild(page);
         }
-        page.appendChild(buildCard(o, terms, sizes));
+        page.appendChild(buildCard(o, terms, o.seeds[i], sizes));
       });
       return waitForImages(area);
     }).then(function () {

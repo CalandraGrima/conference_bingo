@@ -75,7 +75,34 @@
 
   // Card number n (1, 2, 3...) of a seed. The on-screen card with a seed is card 1, so it matches
   // the first printed card made from the same seed and list.
-  function cardRng(seed, n) { return seededRng(String(seed) + '#' + n); }
+  // Seeds ignore capital letters and spaces at the ends, so a seed read off a printed card works however it is typed.
+  function cardRng(seed, n) { return seededRng(String(seed).trim().toLowerCase() + '#' + n); }
+
+  // Made-up seeds use letters and numbers that are hard to mix up on paper (no 0/o, 1/l/i).
+  var SEED_CHARS = '23456789abcdefghjkmnpqrstuvwxyz';
+  function randomSeed(rng) {
+    var out = '', i;
+    for (i = 0; i < 6; i++) out += SEED_CHARS.charAt(Math.floor(rng() * SEED_CHARS.length));
+    return out;
+  }
+
+  // The seeds for a stack of printed cards. Card 1 uses the seed itself; every later card gets its own seed,
+  // worked out from the first. Typing any one of them gives that card back (it is card 1 of its own seed),
+  // and typing the first one gives the whole stack again.
+  function seedList(base, count) {
+    var seeds = [String(base).trim()], used = Object.create(null), n, tries, next;
+    used[seeds[0].toLowerCase()] = true;
+    for (n = 2; n <= count; n++) {
+      tries = 0;
+      do {
+        next = randomSeed(seededRng(seeds[0].toLowerCase() + '#next' + n + (tries ? '-' + tries : '')));
+        tries++;
+      } while (used[next]);
+      used[next] = true;
+      seeds.push(next);
+    }
+    return seeds;
+  }
 
   // A card stores the actual terms (not a seed), so editing a list later never changes a card in play.
   // idRng (optional) makes the card's id, so seeded cards still get ids that are different from each other.
@@ -190,7 +217,7 @@
 
   return {
     SIZE: SIZE, CELLS: CELLS, FREE: FREE, NEEDED: NEEDED, LINES: LINES,
-    parseTerms: parseTerms, shuffle: shuffle, hashSeed: hashSeed, seededRng: seededRng, cardRng: cardRng, makeCard: makeCard, isValidCard: isValidCard,
+    parseTerms: parseTerms, shuffle: shuffle, hashSeed: hashSeed, seededRng: seededRng, cardRng: cardRng, randomSeed: randomSeed, seedList: seedList, makeCard: makeCard, isValidCard: isValidCard,
     markedCount: markedCount, completedLines: completedLines, completedLineIds: completedLineIds,
     findLongTerms: findLongTerms, bingoLabel: bingoLabel, statusLabel: statusLabel, parseCount: parseCount,
     buildShareText: buildShareText

@@ -857,9 +857,7 @@
   // ---------- choose your list (premade or pasted), seed ----------
   const clampCount = (v) => Math.min(MAX_PRINT, Math.max(1, Math.floor(Number(v)) || 1));
 
-  function randomSeed() {
-    return Math.floor(rng() * Math.pow(36, 6)).toString(36).padStart(6, '0');
-  }
+  const randomSeed = () => Core.randomSeed(rng);
 
   // Text under the pasted list: how many squares it has, and whether that is enough.
   function describeCustom() {
@@ -933,16 +931,18 @@
       showToast(e.message, null, null, 6000);
       return;
     }
-    // With no seed typed, make one up and print it on every card, so the same stack can be made again later.
+    // The first card uses the seed typed at the top (or a made-up one) and each later card gets its own seed worked
+    // out from it. Every card has its seed printed on it: typing that seed in gives that card back, and typing the
+    // first one gives the whole stack again.
     const seed = prefs.seed.trim() || randomSeed();
-    const cards = [];
-    for (let n = 1; n <= count; n++) cards.push(Core.makeCard(source.terms, Core.cardRng(seed, n), rng).terms);
+    const seeds = Core.seedList(seed, count);
+    const cards = seeds.map((s) => Core.makeCard(source.terms, Core.cardRng(s, 1), rng).terms);
     const meta = source.meta;
     $('print-btn').disabled = true;
     showToast('Getting ' + count + (count === 1 ? ' card' : ' cards') + ' ready…', null, null, 3000);
     try {
       await window.BingoPrint.print({
-        area: $('print-area'), cards: cards, perPage: perPage, seed: seed,
+        area: $('print-area'), cards: cards, seeds: seeds, perPage: perPage,
         title: meta.title, logo: meta.logo, logoAlt: meta.logoAlt,
         fit: fitText, freeIndex: Core.FREE
       });
@@ -951,8 +951,7 @@
       updateListUI();
       return;
     }
-    // The cards don't show their seed, so tell the person which one made them (type it in to get the same stack again).
-    showToast('Seed for these cards: ' + seed, null, null, 10000);
+    showToast(count === 1 ? 'Seed for this card: ' + seed : 'Type “' + seed + '” as the seed to make this whole stack again. Each card also shows its own seed.', null, null, 10000);
     updateListUI();   // puts the button back to what the list allows
   }
 
